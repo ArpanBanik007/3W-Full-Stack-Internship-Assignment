@@ -32,10 +32,10 @@ const generateAccessAndRefereshTokens = async(userId) =>{
 
 
  const registerUser = asyncHandler(async (req, res) => {
-    const { fullName, email, phone, password ,username } = req.body;
+    const { fullName, email,  password ,username } = req.body;
 
     if (
-        [fullName, email, phone, password,username].some((field) => field?.trim() === "")
+        [fullName, email,  password,username].some((field) => field?.trim() === "")
     ) {
         throw new ApiError(400, "All fields are required");
     }
@@ -65,14 +65,8 @@ const generateAccessAndRefereshTokens = async(userId) =>{
         email,
         username,
         password,
-       phone
+       
     });
-
-    
-
-
-
-    
 
     // Generate access and refresh tokens
     
@@ -107,6 +101,12 @@ const generateAccessAndRefereshTokens = async(userId) =>{
             )
         );
 });
+
+
+
+
+
+
 
 
 const sendOTP = asyncHandler(async (req, res) => {

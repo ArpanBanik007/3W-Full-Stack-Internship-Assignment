@@ -2,152 +2,157 @@ import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const userSchema = new Schema({
- userId: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true
-  },
-
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
-  },
-
-  phone: {
-    type: String,
-    required: true,
-    trim: true
-  },
-
-  password: {
-    type: String,
-    required: true
-  },
-
-avatar:{
-type: String,
- } ,
-coverImage: {
-type: String, // cloudinary url
- },
-       
- location: {
-    ip: {
+const userSchema = new Schema(
+  {
+    // ================= BASIC INFO =================
+    username: {
       type: String,
-      default: null,
+      required: true,
+      unique: true,
+      trim: true,
     },
-    city: {
+
+    email: {
       type: String,
-      default: null,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
     },
-    region: {
+
+    password: {
       type: String,
-      default: null,
+      required: true,
     },
-    country: {
+
+    // ================= PROFILE =================
+    avatar: {
+      type: String, // cloudinary url
+      default: "",
+    },
+
+    coverImage: {
+      type: String, // cloudinary url
+      default: "",
+    },
+
+    // ================= LOCATION =================
+    location: {
+      ip: {
+        type: String,
+        default: null,
+      },
+      city: {
+        type: String,
+        default: null,
+      },
+      region: {
+        type: String,
+        default: null,
+      },
+      country: {
+        type: String,
+        default: null,
+      },
+    },
+
+    // ================= SOCIAL =================
+    followersCount: {
+      type: Number,
+      default: 0,
+    },
+
+    followingCount: {
+      type: Number,
+      default: 0,
+    },
+
+    // ================= PLAN & ACTIVITY =================
+    plan: {
       type: String,
-      default: null,
+      enum: ["free", "premium", "pro"],
+      default: "free",
+    },
+
+    points: {
+      type: Number,
+      default: 0,
+    },
+
+    downloads: [
+      {
+        type: String,
+      },
+    ],
+
+    groups: [
+      {
+        type: String,
+      },
+    ],
+
+    // ================= AUTH =================
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
   },
-   followersCount: {
-    type: Number,
-    default: 0,
-  },
-  followingCount: {
-    type: Number,
-    default: 0,
-  },
+  {
+    timestamps: true,
+  }
+);
 
-  plan: {
-    type: String,
-    enum: ['free', 'premium', 'pro'],
-    default: 'free'
-  },
-
-  points: {
-    type: Number,
-    default: 0
-  },
-
-  downloads: [
-    {
-      type: String // video/document ID or filename
-    }
-  ],
-
-
-  groups: [
-    {
-      type: String // group IDs
-    }
-  ],
-
-  loginTime: {
-    type: Date,
-    default: Date.now
-  },
- role: {
-type: String,
-enum: ['user', 'admin'], 
-default: 'user',         
-},
-
-
-  isVerified: {
-    type: Boolean,
-    default: false
-  },
-
-}, {
-  timestamps: true
-});
-
-// ✅ Password Hash Middleware
+// ==================================================
+// 🔐 PASSWORD HASH (before save)
+// ==================================================
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
+
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-// ✅ Password Compare Method
+// ==================================================
+// 🔐 PASSWORD COMPARE
+// ==================================================
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-// ✅ JWT Access Token
+// ==================================================
+// 🔐 ACCESS TOKEN
+// ==================================================
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
       _id: this._id,
       email: this.email,
-      name: this.name
+      username: this.username,
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRY
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
     }
   );
 };
 
-// ✅ JWT Refresh Token
+// ==================================================
+// 🔁 REFRESH TOKEN
+// ==================================================
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {
-      _id: this._id
+      _id: this._id,
     },
     process.env.REFRESH_TOKEN_SECRET,
     {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRY
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
     }
   );
 };
