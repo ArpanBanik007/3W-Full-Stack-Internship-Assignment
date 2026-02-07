@@ -55,6 +55,7 @@ const postSchema = new mongoose.Schema(
       default: false,
     },
 
+    
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

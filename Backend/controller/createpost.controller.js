@@ -35,6 +35,7 @@ const createpost = asyncHandler(async (req, res) => {
 
 
    
+   
   if (postFile) {
     const allowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
     if (!allowedImageTypes.includes(postFile.mimetype)) {
@@ -157,8 +158,8 @@ const getPostsFeed = asyncHandler(async (req, res) => {
   const userId = req.user._id;
 
   // ✅ 1. Fetch all followings of current user
-  const myFollowings = await Follow.find({ follower: userId }).select("following");
-  const followingIds = myFollowings.map(f => f.following);
+ // const myFollowings = await Follow.find({ follower: userId }).select("following");
+ // const followingIds = myFollowings.map(f => f.following);
 
   // ✅ 2. Aggregate posts
   const posts = await Post.aggregate([
@@ -202,11 +203,7 @@ const getPostsFeed = asyncHandler(async (req, res) => {
     },
 
     // ✅ check if current user follows the post creator
-    {
-      $addFields: {
-        "createdBy.isFollowedByMe": { $in: ["$createdBy._id", followingIds] }
-      }
-    },
+   
 
     {
       $project: {
@@ -215,7 +212,7 @@ const getPostsFeed = asyncHandler(async (req, res) => {
         likes: 1,
         dislikes: 1,
         createdAt: 1,
-        createdBy: { _id: 1, username: 1, avatar: 1, isFollowedByMe: 1 },
+        createdBy: { _id: 1, username: 1, fullName:1 , avatar: 1, isFollowedByMe: 1 },
         userLiked: 1
       }
     }

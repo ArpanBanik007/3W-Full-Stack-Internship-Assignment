@@ -35,7 +35,7 @@ function UpperFeedpage() {
 
     try {
       setLoading(true);
-      await axios.post("http://localhost:8000/api/v1/posts/", formData, {
+      await axios.post("http://localhost:8001/api/v1/posts/", formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       });

@@ -6,6 +6,7 @@ function HomePage() {
   return (
     <>
       <UpperFeedpage />
+      <MainFeed />
     </>
   );
 }

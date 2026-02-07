@@ -20,8 +20,9 @@ const router = Router();
  * Post Routes
  */
 
+
 // ✅ Create a new post (image optional)
-router.route("/").post(
+router.route("/create").post(
     upload.fields([
         {
             name: "postFile",
