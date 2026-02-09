@@ -7,6 +7,7 @@ import { deleteFromCloudinary } from "../utils/deleteFromCloudynary.js";
 import escapeStringRegexp from "escape-string-regexp";
 import ApiResponse from "../utils/ApiResponse.js";
 import Like from "../models/likes.models.js";
+import Dislike from "../models/dislikes.models.js";
 import mongoose from "mongoose";
 import { io } from "../socket.js";
 
@@ -51,7 +52,7 @@ const createpost = asyncHandler(async (req, res) => {
   }
 
   const newPost = await Post.create({
-    title: title.trim(),
+    title: title,
     description: description.trim(),
     //tags,
     userId:userId,
@@ -208,6 +209,7 @@ const getPostsFeed = asyncHandler(async (req, res) => {
     {
       $project: {
         title: 1,
+        description:1,
         posturl: 1,
         likes: 1,
         dislikes: 1,

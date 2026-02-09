@@ -1,14 +1,16 @@
-import React from "react";
-import MainFeed from "../feed/MainFeed";
-import UpperFeedpage from "../feed/UpperFeed";
+import React from 'react'
+import UpperFeedpage from '../feed/UpperFeed'
+import MainFeed from '../feed/MainFeed'
+import Navbar from '../home/Navbar'
 
 function HomePage() {
   return (
     <>
-      <UpperFeedpage />
-      <MainFeed />
+      <Navbar/>
+      <UpperFeedpage/>
+      <MainFeed/>
     </>
-  );
+  )
 }
 
-export default HomePage;
+export default HomePage

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { socket } from "../socket";
-
+import { useNavigate } from "react-router-dom";
 import { FaHeart, FaComment } from "react-icons/fa";
 import { FaShareNodes } from "react-icons/fa6";
 import { PiDotsThreeBold } from "react-icons/pi";
@@ -16,6 +16,8 @@ function MainFeed() {
   const { mydetails, loading: userLoading } = useSelector(
     (state) => state.mydetails,
   );
+
+  const navigate = useNavigate();
 
   const [posts, setPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
@@ -60,6 +62,22 @@ function MainFeed() {
     socket.on("post-reaction-updated", handleReactionUpdate);
     return () => socket.off("post-reaction-updated", handleReactionUpdate);
   }, [posts]);
+
+  useEffect(() => {
+    const handleCommentCountUpdate = ({ postId, commentsCount }) => {
+      setPosts((prev) =>
+        prev.map((post) =>
+          post._id === postId ? { ...post, comments: commentsCount } : post,
+        ),
+      );
+    };
+
+    socket.on("comment-count-updated", handleCommentCountUpdate);
+
+    return () => {
+      socket.off("comment-count-updated", handleCommentCountUpdate);
+    };
+  }, []);
 
   /* ================= LIKE ================= */
   const handleLike = async (postId) => {
@@ -122,7 +140,7 @@ function MainFeed() {
                 />
 
                 <div>
-                  <div className="fw-bold text-dark">
+                  <div className="fw-bold fs-5 text-dark">
                     {post?.createdBy?.fullName}
                   </div>
                   <div className="fw-bold text-dark">
@@ -161,7 +179,9 @@ function MainFeed() {
 
             {/* CONTENT */}
             <div className="px-3 pb-3">
-              {post.title && <p className="fw-semibold mb-2">{post.title}</p>}
+              {post.description && (
+                <p className="fw-semibold mb-2">{post.description}</p>
+              )}
 
               {post.posturl && (
                 <img
@@ -189,7 +209,10 @@ function MainFeed() {
                 <FaHeart /> {post.likes}
               </button>
 
-              <button className="btn btn-link text-dark d-flex align-items-center gap-1">
+              <button
+                onClick={() => navigate(`/post/${post._id}`)}
+                className="cursor-pointer"
+              >
                 <FaComment /> {post.comments || 0}
               </button>
 

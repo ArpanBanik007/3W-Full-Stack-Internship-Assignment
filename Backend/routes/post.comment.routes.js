@@ -1,40 +1,15 @@
-// routes/comment.routes.js
-import express from "express";
+import { Router } from "express";
+import { verifyJWT } from "../middlewire/auth.middlewire.js";
 import {
   createPostComment,
   getAllCommentsForPost,
   getRepliesByCommentIdForPost,
-  commentReplyForPost,
-  updateCommentForPost,
-  deleteCommentForPost,
-  toggleLikeOnCommentForPost,
 } from "../controller/post.comments.controller.js";
 
-import { verifyJWT } from "../middlewire/auth.middlewire.js";
+const router = Router();
 
-
-const router = express.Router();
-
-
-// ✅ Create a comment on a post
-router.post("/:postId", verifyJWT, createPostComment);
-
-// ✅ Get all top-level comments for a post
-router.get("/:postId", getAllCommentsForPost);
-
-// ✅ Get replies for a specific comment
-router.get("/replies/:commentId", getRepliesByCommentIdForPost);
-
-// ✅ Reply to a comment
-router.post("/reply/:commentId", verifyJWT,  commentReplyForPost);
-
-// ✅ Update a comment
-router.put("/:postId/:commentId", verifyJWT, updateCommentForPost);
-
-// ✅ Delete a comment
-router.delete("/:postId/:commentId", verifyJWT, deleteCommentForPost);
-
-// ✅ Toggle like on a comment
-router.post("/like/:commentId", verifyJWT, toggleLikeOnCommentForPost);
+router.post("/post/:postId", verifyJWT, createPostComment);
+router.get("/post/:postId", getAllCommentsForPost);
+router.get("/:commentId/replies", getRepliesByCommentIdForPost);
 
 export default router;

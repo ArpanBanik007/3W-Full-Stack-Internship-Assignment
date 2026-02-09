@@ -1,13 +1,32 @@
 import { IoMdPhotos } from "react-icons/io";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
+import { fetchMydetils } from "../slices/mydetails.slice";
+;
+
+
+
 
 function UpperFeedpage() {
+ const dispatch = useDispatch();
+  const { mydetails } = useSelector((state) => state.mydetails);
+
+
+
   const [showModal, setShowModal] = useState(false);
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
+
+
+
+   useEffect(() => {
+    if (!mydetails || Object.keys(mydetails).length === 0) {
+      dispatch(fetchMydetils());
+    }
+  }, [dispatch, mydetails]);
 
   const handleFile = (e) => {
     const f = e.target.files[0];
@@ -35,7 +54,7 @@ function UpperFeedpage() {
 
     try {
       setLoading(true);
-      await axios.post("http://localhost:8001/api/v1/posts/", formData, {
+      await axios.post("http://localhost:8001/api/v1/posts/create", formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -58,9 +77,13 @@ function UpperFeedpage() {
 
             <div className="d-flex gap-2 align-items-center mb-3">
               <img
-                src="https://www.svgrepo.com/show/452030/avatar-default.svg"
-                className="rounded-circle"
-                width="42"
+                src={mydetails?.avatar ||  "https://www.svgrepo.com/show/452030/avatar-default.svg"}
+              style={{
+                    width: "50px",
+                    height: "50px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
                 alt="avatar"
               />
 
