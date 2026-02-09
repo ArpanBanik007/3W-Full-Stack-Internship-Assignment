@@ -76,9 +76,10 @@ dislikes: {
 },
 
 
-    comments: {
+  commentsCount: {      // ✅ FIXED
       type: Number,
       default: 0,
+      min: 0,
     },
   },
   {

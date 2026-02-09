@@ -15,6 +15,8 @@ import { io } from "../socket.js";
 /**
  * Create Post (text + optional image)
  */
+
+
 const createpost = asyncHandler(async (req, res) => {
   const { title, description,  isPublished } = req.body;
   const userId = req.user?._id;
@@ -213,6 +215,7 @@ const getPostsFeed = asyncHandler(async (req, res) => {
         posturl: 1,
         likes: 1,
         dislikes: 1,
+       commentsCount: 1,   
         createdAt: 1,
         createdBy: { _id: 1, username: 1, fullName:1 , avatar: 1, isFollowedByMe: 1 },
         userLiked: 1

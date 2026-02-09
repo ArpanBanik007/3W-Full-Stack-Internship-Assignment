@@ -63,11 +63,20 @@ function MainFeed() {
     return () => socket.off("post-reaction-updated", handleReactionUpdate);
   }, [posts]);
 
+  // MainFeed.jsx
+  useEffect(() => {
+    if (!posts.length) return;
+
+    posts.forEach((post) => {
+      socket.emit("join-post", post._id);
+    });
+  }, [posts.length]);
+
   useEffect(() => {
     const handleCommentCountUpdate = ({ postId, commentsCount }) => {
       setPosts((prev) =>
         prev.map((post) =>
-          post._id === postId ? { ...post, comments: commentsCount } : post,
+          post._id === postId ? { ...post, commentsCount } : post,
         ),
       );
     };
@@ -213,7 +222,8 @@ function MainFeed() {
                 onClick={() => navigate(`/post/${post._id}`)}
                 className="cursor-pointer"
               >
-                <FaComment /> {post.comments || 0}
+                <FaComment />
+                {post.commentsCount || 0}
               </button>
 
               <button className="btn btn-link text-dark d-flex align-items-center gap-1">
