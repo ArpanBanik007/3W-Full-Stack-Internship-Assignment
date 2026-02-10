@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "../utils/axios";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -28,11 +29,7 @@ function LoginPage() {
     setSuccess("");
 
     try {
-      const res = await axios.post(
-        "http://localhost:8001/api/v1/users/login",
-        formData,
-        { withCredentials: true },
-      );
+      const res = await api.post("/api/v1/users/login", formData);
 
       setSuccess(res?.data?.message || "Login successful!");
 

@@ -1,18 +1,18 @@
 // src/slices/mydetails.slice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../utils/axios";
 
-// ✅ Fetch my details
-export const fetchMydetils = createAsyncThunk(
+// 🔹 Fetch current user
+export const fetchMyDetails = createAsyncThunk(
   "user/fetchMyDetails",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get("http://localhost:8001/api/v1/users/current-user", {
-        withCredentials: true,
-      });
-      return res.data?.data; 
+      const res = await api.get("/api/v1/users/current-user");
+      return res.data?.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch user"
+      );
     }
   }
 );
@@ -20,31 +20,31 @@ export const fetchMydetils = createAsyncThunk(
 const myDetailsSlice = createSlice({
   name: "mydetails",
   initialState: {
-    mydetails: {},
+    mydetails: null,
     loading: false,
     error: null,
   },
   reducers: {
-    // 🧹 Reset when logout
     resetMyDetails: (state) => {
-      state.mydetails = {};
+      state.mydetails = null;
       state.loading = false;
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchMydetils.pending, (state) => {
+      .addCase(fetchMyDetails.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchMydetils.fulfilled, (state, action) => {
+      .addCase(fetchMyDetails.fulfilled, (state, action) => {
         state.loading = false;
-        state.mydetails = action.payload || {};
+        state.mydetails = action.payload;
       })
-      .addCase(fetchMydetils.rejected, (state, action) => {
+      .addCase(fetchMyDetails.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Something went wrong";
+        state.error = action.payload;
+        state.mydetails = null;
       });
   },
 });

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import InputField from "../componants/InputField";
 import Button from "../componants/Button";
 import axios from "axios";
+import api from "../utils/axios";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -73,14 +74,11 @@ export default function SignUp() {
       if (formData.coverImage)
         formDataToSend.append("coverImage", formData.coverImage);
 
-      const res = await axios.post(
-        "http://localhost:8001/api/v1/users/register",
-        formDataToSend,
-        {
-          withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" },
+      const res = await api.post("/api/v1/users/register", formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-      );
+      });
 
       setSuccess(res.data.message || "Registration successful");
 

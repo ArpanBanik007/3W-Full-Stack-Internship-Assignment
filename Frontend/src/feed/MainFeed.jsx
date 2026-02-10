@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../utils/axios";
 import { socket } from "../socket";
 import { useNavigate } from "react-router-dom";
 import { FaHeart, FaComment } from "react-icons/fa";
@@ -32,9 +32,7 @@ function MainFeed() {
   useEffect(() => {
     const fetchFeed = async () => {
       try {
-        const res = await axios.get("http://localhost:8001/api/v1/posts/feed", {
-          withCredentials: true,
-        });
+        const res = await api.get("/api/v1/posts/feed");
         setPosts(res.data?.posts || []);
       } catch (err) {
         console.error(err);
@@ -47,6 +45,8 @@ function MainFeed() {
 
   /* ================= SOCKET ================= */
   useEffect(() => {
+    if (!posts.length) return;
+
     posts.forEach((post) => socket.emit("join-post", post._id));
 
     const handleReactionUpdate = (data) => {
@@ -63,15 +63,6 @@ function MainFeed() {
     return () => socket.off("post-reaction-updated", handleReactionUpdate);
   }, [posts]);
 
-  // MainFeed.jsx
-  useEffect(() => {
-    if (!posts.length) return;
-
-    posts.forEach((post) => {
-      socket.emit("join-post", post._id);
-    });
-  }, [posts.length]);
-
   useEffect(() => {
     const handleCommentCountUpdate = ({ postId, commentsCount }) => {
       setPosts((prev) =>
@@ -82,22 +73,15 @@ function MainFeed() {
     };
 
     socket.on("comment-count-updated", handleCommentCountUpdate);
-
-    return () => {
-      socket.off("comment-count-updated", handleCommentCountUpdate);
-    };
+    return () => socket.off("comment-count-updated", handleCommentCountUpdate);
   }, []);
 
   /* ================= LIKE ================= */
   const handleLike = async (postId) => {
     try {
-      const res = await axios.post(
-        `http://localhost:8001/api/v1/posts/${postId}/like`,
-        {},
-        { withCredentials: true },
-      );
-
+      const res = await api.post(`/api/v1/posts/${postId}/like`);
       const liked = res.data?.liked;
+
       setPosts((prev) =>
         prev.map((post) =>
           post._id === postId ? { ...post, userLiked: liked } : post,
@@ -139,7 +123,6 @@ function MainFeed() {
                     post?.createdBy?.avatar ||
                     "https://www.svgrepo.com/show/452030/avatar-default.svg"
                   }
-                  alt="avatar"
                   style={{
                     width: "40px",
                     height: "40px",
@@ -149,19 +132,15 @@ function MainFeed() {
                 />
 
                 <div>
-                  <div className="fw-bold fs-5 text-dark">
-                    {post?.createdBy?.fullName}
-                  </div>
-                  <div className="fw-bold text-dark">
-                    {post?.createdBy?.username}
-                  </div>
+                  <div className="fw-bold fs-5">{post.createdBy.fullName}</div>
+                  <div className="fw-bold">@{post.createdBy.username}</div>
                   <div className="text-muted small">
                     {new Date(post.createdAt).toLocaleString()}
                   </div>
                 </div>
               </div>
 
-              <div className="d-flex align-items-center gap-2">
+              <div className="d-flex gap-2">
                 {post.createdBy._id !== mydetails?._id && (
                   <FollowButton
                     userId={post.createdBy._id}
@@ -181,36 +160,25 @@ function MainFeed() {
               <PostActionMenu
                 isOpen={openMenuId === post._id}
                 onClose={() => setOpenMenuId(null)}
-                onSave={() => console.log("Save")}
-                onBlock={() => console.log("Block")}
               />
             </div>
 
             {/* CONTENT */}
             <div className="px-3 pb-3">
-              {post.description && (
-                <p className="fw-semibold mb-2">{post.description}</p>
-              )}
-
+              {post.description && <p>{post.description}</p>}
               {post.posturl && (
                 <img
                   src={post.posturl}
-                  alt=""
-                  className="w-100"
-                  style={{
-                    maxHeight: "340px",
-                    objectFit: "contain",
-                    borderRadius: "10px",
-                    background: "#e5e7eb",
-                  }}
+                  className="w-100 rounded"
+                  style={{ maxHeight: "340px", objectFit: "contain" }}
                 />
               )}
             </div>
 
             {/* ACTIONS */}
-            <div className="border-top d-flex justify-content-around py-2 small">
+            <div className="border-top d-flex justify-content-around py-2">
               <button
-                className={`btn btn-link text-decoration-none d-flex align-items-center gap-1 ${
+                className={`btn btn-link ${
                   post.userLiked ? "text-danger" : "text-dark"
                 }`}
                 onClick={() => handleLike(post._id)}
@@ -218,15 +186,11 @@ function MainFeed() {
                 <FaHeart /> {post.likes}
               </button>
 
-              <button
-                onClick={() => navigate(`/post/${post._id}`)}
-                className="cursor-pointer"
-              >
-                <FaComment />
-                {post.commentsCount || 0}
+              <button onClick={() => navigate(`/post/${post._id}`)}>
+                <FaComment /> {post.commentsCount || 0}
               </button>
 
-              <button className="btn btn-link text-dark d-flex align-items-center gap-1">
+              <button className="btn btn-link text-dark">
                 <FaShareNodes /> Share
               </button>
             </div>

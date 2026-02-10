@@ -1,18 +1,18 @@
 // src/slices/postSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../utils/axios";
 
-// ✅ Fetch user's own posts
+// 🔹 Fetch my posts
 export const fetchMyPosts = createAsyncThunk(
   "posts/fetchMyPosts",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await axios.get("http://localhost:8001/api/v1/posts/my-posts", {
-        withCredentials: true,
-      });
-      return res.data?.data; 
+      const res = await api.get("/api/v1/posts/my-posts");
+      return res.data?.data || [];
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch posts"
+      );
     }
   }
 );
@@ -25,7 +25,6 @@ const postSlice = createSlice({
     error: null,
   },
   reducers: {
-    // 🧹 Reset when logout
     resetMyPosts: (state) => {
       state.posts = [];
       state.loading = false;
@@ -36,14 +35,15 @@ const postSlice = createSlice({
     builder
       .addCase(fetchMyPosts.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchMyPosts.fulfilled, (state, action) => {
         state.loading = false;
-        state.posts = action.payload || [];
+        state.posts = action.payload;
       })
       .addCase(fetchMyPosts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || "Something went wrong";
+        state.error = action.payload;
       });
   },
 });
