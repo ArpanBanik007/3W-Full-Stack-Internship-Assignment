@@ -6,6 +6,7 @@ import axios from "axios";
 import { persistor } from "../store/store";
 import { resetMyDetails } from "../slices/mydetails.slice";
 import { resetMyPosts } from "../slices/postSlice";
+import api from "../utils/axios";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -15,11 +16,7 @@ function Navbar() {
   // ✅ Logout Handler (UNCHANGED)
   const handleLogout = async () => {
     try {
-      await axios.post(
-        "http://localhost:8001/api/v1/users/logout",
-        {},
-        { withCredentials: true }
-      );
+      await api.post("/api/v1/users/logout", {}, { withCredentials: true });
 
       dispatch(resetMyDetails());
       dispatch(resetMyPosts());
@@ -54,9 +51,7 @@ function Navbar() {
         {/* Home */}
         <button
           className={`btn btn-sm ${
-            location.pathname === "/home"
-              ? "btn-light"
-              : "btn-outline-light"
+            location.pathname === "/home" ? "btn-light" : "btn-outline-light"
           }`}
           onClick={() =>
             location.pathname === "/home"
@@ -69,10 +64,7 @@ function Navbar() {
         </button>
 
         {/* Logout Button */}
-        <button
-          className="btn btn-sm btn-danger"
-          onClick={handleLogout}
-        >
+        <button className="btn btn-sm btn-danger" onClick={handleLogout}>
           Logout
         </button>
       </div>
