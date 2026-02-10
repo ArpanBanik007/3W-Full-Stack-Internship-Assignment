@@ -8,7 +8,10 @@ const app= express();
 // cors frontend
 
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:5174"],
+ origin: [
+      "http://localhost:5173",
+      "https://3-w-full-stack-internship-assignmen.vercel.app",
+    ],
   credentials: true,
 }));
 

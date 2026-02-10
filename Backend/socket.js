@@ -7,7 +7,8 @@ export let io ;
 export const initSocket=(httpServer)=>{
     io= new Server(httpServer,{
           cors: {
-      origin: "http://localhost:5173",
+         origin: "https://3-w-full-stack-internship-assignmen.vercel.app",
+
       credentials: true,
     },
     });
